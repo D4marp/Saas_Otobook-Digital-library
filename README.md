@@ -38,12 +38,20 @@ A modern SaaS platform for automated book cataloging and robotic process automat
 
 ## 🚀 Getting Started
 
-### Option A: Docker (Recommended)
+### Option A: Docker with Colima (Recommended for macOS) ⭐
+
+Colima is lightweight (~500MB) compared to Docker Desktop (~2.5GB).
 
 #### Quick Start
 ```bash
 git clone https://github.com/D4marp/Saas_Otobook-Digital-library.git
 cd "SAAS Otobook"
+
+# Install and start Colima (one-time setup)
+brew install colima docker
+colima start --cpu 4 --memory 6
+
+# Run application
 docker-compose up -d
 ```
 
@@ -52,9 +60,26 @@ Then access:
 - **Backend**: http://localhost:3001
 - **MySQL**: localhost:3306
 
+**Commands**:
+```bash
+colima status          # Check status
+docker-compose logs    # View logs
+docker-compose down    # Stop all services
+colima stop            # Stop Colima (frees memory)
+```
+
+For detailed Colima setup, see [COLIMA_SETUP.md](./COLIMA_SETUP.md)
+
+### Option B: Docker Desktop
+
+```bash
+# Ensure Docker Desktop is running
+docker-compose up -d
+```
+
 For detailed Docker setup, see [DOCKER.md](./DOCKER.md)
 
-### Option B: Local Development
+### Option C: Local Development
 
 #### 1. Clone the Repository
 ```bash

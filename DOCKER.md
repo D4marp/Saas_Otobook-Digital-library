@@ -4,15 +4,29 @@ Complete guide to run OTobook SaaS using Docker containers.
 
 ## 📋 Prerequisites
 
+### ⭐ Recommended: Colima (Lightweight for macOS)
+- **Memory**: ~500MB (vs Docker Desktop's ~2.5GB)
+- **Perfect for**: MacBook Air, M1/M2 Macs with limited resources
+
+Install Colima:
+```bash
+brew install colima docker
+colima start --cpu 4 --memory 6
+```
+
+See [COLIMA_SETUP.md](COLIMA_SETUP.md) for complete Colima guide and troubleshooting.
+
+### Alternative: Docker Desktop
 - Docker (v20.10+)
 - Docker Compose (v2.0+)
 
-### Install Docker & Docker Compose
+Install Docker & Docker Compose:
 
-**macOS:**
+**macOS (with Docker Desktop):**
 ```bash
-brew install docker docker-compose
-# or install Docker Desktop
+# Download Docker Desktop from https://www.docker.com/products/docker-desktop
+# or install with Homebrew
+brew install --cask docker
 ```
 
 **Linux (Ubuntu/Debian):**
