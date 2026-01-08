@@ -1,0 +1,236 @@
+version: '3.9'
+
+services:
+  # MySQL Database - Production Hardened
+  mysql:
+    image: mysql:8.0-alpine
+    container_name: otobook_mysql_prod
+    restart: unless-stopped
+    
+    # 🔒 Use environment variables, not hardcoded values
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      # Production settings
+      MYSQL_INITDB_ARGS: "--default-authentication-plugin=mysql_native_password"
+    
+    # 🔒 Restrict port to localhost only (NO public access)
+    ports:
+      - "127.0.0.1:3306:3306"
+    
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    
+    # 📊 Health checks
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${DB_USER}", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    
+    # 🛡️ Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    
+    # 📝 Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=mysql"
+    
+    networks:
+      - otobook-network
+    
+    # 🔒 Security options
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+
+  # Backend API Server - Production Hardened
+  backend:
+    build:
+      context: .
+      dockerfile: Backend/Dockerfile
+      args:
+        NODE_ENV: production
+    
+    container_name: otobook_backend_prod
+    restart: unless-stopped
+    
+    # 🔒 Environment variables from .env.production
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DB_HOST: mysql
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+      # Add more production variables as needed
+    
+    # 🔒 Restrict port to internal network only (NO public)
+    expose:
+      - "3001"
+    
+    depends_on:
+      mysql:
+        condition: service_healthy
+    
+    # 📊 Health checks
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # 🛡️ Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    
+    # 📝 Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=backend"
+    
+    networks:
+      - otobook-network
+    
+    # 🔒 Security options
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+
+  # Frontend Server - Production Hardened
+  frontend:
+    build:
+      context: .
+      dockerfile: Frontend/Dockerfile
+      args:
+        NODE_ENV: production
+    
+    container_name: otobook_frontend_prod
+    restart: unless-stopped
+    
+    # 🔒 Restrict to internal network only
+    expose:
+      - "80"
+    
+    depends_on:
+      - backend
+    
+    # 📊 Health checks
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    
+    # 🛡️ Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    
+    # 📝 Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=frontend"
+    
+    networks:
+      - otobook-network
+    
+    # 🔒 Security options
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+
+  # 🔒 Reverse Proxy (Nginx) - SSL/TLS Termination
+  # Uncomment when SSL certificates are ready
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: otobook_nginx
+  #   restart: unless-stopped
+  #   
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   
+  #   volumes:
+  #     - ./nginx-prod.conf:/etc/nginx/nginx.conf:ro
+  #     - /path/to/ssl-certs:/etc/nginx/certs:ro
+  #   
+  #   depends_on:
+  #     - frontend
+  #     - backend
+  #   
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '0.5'
+  #         memory: 256M
+  #   
+  #   networks:
+  #     - otobook-network
+  #   
+  #   security_opt:
+  #     - no-new-privileges:true
+
+volumes:
+  mysql_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/otobook/mysql-data  # Use absolute path
+
+networks:
+  otobook-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: br-otobook
