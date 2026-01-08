@@ -38,13 +38,31 @@ A modern SaaS platform for automated book cataloging and robotic process automat
 
 ## 🚀 Getting Started
 
-### 1. Clone the Repository
+### Option A: Docker (Recommended)
+
+#### Quick Start
+```bash
+git clone https://github.com/D4marp/Saas_Otobook-Digital-library.git
+cd "SAAS Otobook"
+docker-compose up -d
+```
+
+Then access:
+- **Frontend**: http://localhost
+- **Backend**: http://localhost:3001
+- **MySQL**: localhost:3306
+
+For detailed Docker setup, see [DOCKER.md](./DOCKER.md)
+
+### Option B: Local Development
+
+#### 1. Clone the Repository
 ```bash
 git clone https://github.com/D4marp/Saas_Otobook-Digital-library.git
 cd "SAAS Otobook"
 ```
 
-### 2. Setup Backend
+#### 2. Setup Backend
 ```bash
 cd Backend
 npm install
@@ -53,7 +71,7 @@ npm start
 # Backend runs on http://localhost:3001
 ```
 
-### 3. Setup Frontend
+#### 3. Setup Frontend
 ```bash
 cd Frontend
 npm install
