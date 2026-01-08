@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Production
+/build
+/dist
+
+# Misc
+.DS_Store
+.env
+.env.local
+.env.*.local
+*.log
+*.pem
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Package manager
+package-lock.json
+yarn.lock
+bun.lockb
+
+# Build outputs
+/Frontend/dist
+/Backend/node_modules
+/Frontend/node_modules
