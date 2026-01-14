@@ -13,6 +13,8 @@ import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import OCRDocumentation from "./pages/OCRDocumentation";
 import RPADocumentation from "./pages/RPADocumentation";
+import OCRPlayground from "./pages/OCRPlayground";
+import RPAPlayground from "./pages/RPAPlayground";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +32,8 @@ const App = () => (
           <Route path="/signup" element={<Signup />} />
           <Route path="/documentation/ocr" element={<OCRDocumentation />} />
           <Route path="/documentation/rpa" element={<RPADocumentation />} />
+          <Route path="/playground/ocr" element={<OCRPlayground />} />
+          <Route path="/playground/rpa" element={<RPAPlayground />} />
 
           {/* Protected Routes - Requires Authentication */}
           <Route

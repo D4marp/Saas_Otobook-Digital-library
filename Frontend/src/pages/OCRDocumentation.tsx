@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Copy, Code2, CheckCircle, AlertCircle } from "lucide-react";
-import { documentationAPI } from "@/lib/api";
+import { Badge } from "@/components/ui/badge";
+import { Copy, CheckCircle, Code2, FileImage, Globe } from "lucide-react";
 
 const CodeBlock = ({ code, language, id }: { code: string; language: string; id: number }) => {
   const [copied, setCopied] = useState(false);
@@ -43,566 +43,359 @@ const CodeBlock = ({ code, language, id }: { code: string; language: string; id:
 };
 
 export default function OCRDocumentation() {
-  const [docs, setDocs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchDocumentation();
-  }, []);
-
-  const fetchDocumentation = async () => {
-    try {
-      const response = await documentationAPI.getDocumentationByType("OCR");
-      setDocs(response.data.data || []);
-    } catch (err) {
-      setError("Failed to load documentation from backend.");
-      console.error("Error fetching documentation:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <DashboardLayout title="OCR Documentation" subtitle="Loading...">
-        <Card className="p-8 text-center">
-          <p className="text-gray-600">Loading OCR documentation...</p>
-        </Card>
-      </DashboardLayout>
-    );
-  }
-
   return (
     <DashboardLayout
-      title="OCR Documentation"
-      subtitle="Complete guide for OCR implementation on Web, Android & iOS"
+      title="OCR API Documentation"
+      subtitle="Complete API reference for Tesseract OCR integration - Free, no API keys"
     >
       <div className="space-y-6">
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-800">
-            <AlertCircle className="w-5 h-5" />
-            {error}
-          </div>
-        )}
-
         {/* Overview */}
         <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
           <div className="flex items-start gap-4">
             <Code2 className="w-8 h-8 text-blue-600 mt-1 flex-shrink-0" />
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Optical Character Recognition (OCR)</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Tesseract OCR API</h2>
               <p className="text-gray-700">
-                Extract text from images and documents with high accuracy. Our OCR solutions support Web, Android, and iOS platforms with complete implementation guides and code examples.
+                Free, open-source optical character recognition. Extract text from images in 100+ languages. No API keys required. Fully offline capable.
               </p>
             </div>
           </div>
         </Card>
 
-        {/* Platform Tabs - Dynamic + Flutter */}
-        {docs.length > 0 ? (
-          <Tabs defaultValue={docs[0]?.platform || "Web"} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-5">
-              {docs.map((doc) => (
-                <TabsTrigger key={doc.id} value={doc.platform || ""}>
-                  {doc.platform}
-                </TabsTrigger>
-              ))}
-              <TabsTrigger value="Flutter">Flutter</TabsTrigger>
-            </TabsList>
+        <Tabs defaultValue="endpoints" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="endpoints">Endpoints</TabsTrigger>
+            <TabsTrigger value="platforms">Multi-Platform</TabsTrigger>
+            <TabsTrigger value="examples">Examples</TabsTrigger>
+            <TabsTrigger value="deployment">Deploy</TabsTrigger>
+          </TabsList>
 
-            {docs.map((doc) => (
-              <TabsContent key={doc.id} value={doc.platform || ""} className="space-y-6 mt-6">
-                <Card className="p-6">
-                  <h3 className="text-xl font-bold mb-4">{doc.title}</h3>
-                  <p className="text-gray-700 mb-6">{doc.description}</p>
-                  <p className="text-gray-600 mb-6">{doc.content}</p>
+          {/* API Endpoints */}
+          <TabsContent value="endpoints" className="space-y-6 mt-6">
+            {/* GET /api/ocr/providers */}
+            <Card className="p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Get Providers</h3>
+                <Badge>GET</Badge>
+              </div>
+              <code className="text-sm bg-gray-100 p-3 rounded block mb-4">/api/ocr/providers</code>
+              <p className="text-sm text-gray-600 mb-4">List all available OCR providers</p>
+              <CodeBlock id={1} language="bash" code="curl http://localhost:5000/api/ocr/providers" />
+            </Card>
 
-                  {/* Platform-specific code examples */}
-                  {doc.platform === "Web" && (
-                    <div className="space-y-6">
-                      <div>
-                        <h4 className="font-semibold mb-3">1. Installation</h4>
-                        <CodeBlock
-                          id={doc.id}
-                          code="npm install tesseract.js"
-                          language="bash"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3">2. Basic Setup</h4>
-                        <CodeBlock
-                          id={doc.id + 1}
-                          code={`import Tesseract from 'tesseract.js';
+            {/* POST /api/ocr/demo */}
+            <Card className="p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Demo OCR</h3>
+                <Badge variant="outline">POST</Badge>
+              </div>
+              <code className="text-sm bg-gray-100 p-3 rounded block mb-4">/api/ocr/demo</code>
+              <p className="text-sm text-gray-600 mb-4">Test OCR processing with demo image</p>
+              <CodeBlock id={2} language="bash" code={`curl -X POST http://localhost:5000/api/ocr/demo \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "provider": "tesseract",
+    "language": "eng",
+    "outputFormat": "text"
+  }'`} />
+            </Card>
 
-const performOCR = async (imagePath) => {
-  const result = await Tesseract.recognize(imagePath, 'eng');
-  return result.data.text;
-};`}
-                          language="javascript"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3">3. React Component</h4>
-                        <CodeBlock
-                          id={doc.id + 2}
-                          code={`import { useState } from 'react';
-import Tesseract from 'tesseract.js';
+            {/* POST /api/ocr/process */}
+            <Card className="p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Process Image</h3>
+                <Badge variant="outline">POST</Badge>
+              </div>
+              <code className="text-sm bg-gray-100 p-3 rounded block mb-4">/api/ocr/process</code>
+              <p className="text-sm text-gray-600 mb-4">Upload and process image file</p>
+              <CodeBlock id={3} language="bash" code={`curl -X POST http://localhost:5000/api/ocr/process \\
+  -F "image=@image.jpg" \\
+  -F "language=eng" \\
+  -F "outputFormat=text"`} />
+            </Card>
 
-export const OCRUploader = () => {
+            {/* POST /api/ocr/batch */}
+            <Card className="p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Batch Processing</h3>
+                <Badge variant="outline">POST</Badge>
+              </div>
+              <code className="text-sm bg-gray-100 p-3 rounded block mb-4">/api/ocr/batch</code>
+              <p className="text-sm text-gray-600 mb-4">Process multiple images</p>
+              <CodeBlock id={4} language="json" code={`{
+  "images": ["base64_image_1", "base64_image_2"],
+  "language": "eng",
+  "outputFormat": "text"
+}`} />
+            </Card>
+
+            {/* POST /api/ocr/extract */}
+            <Card className="p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Extract Structured Data</h3>
+                <Badge variant="outline">POST</Badge>
+              </div>
+              <code className="text-sm bg-gray-100 p-3 rounded block mb-4">/api/ocr/extract</code>
+              <p className="text-sm text-gray-600 mb-4">Extract tables and form fields</p>
+              <CodeBlock id={5} language="json" code={`{
+  "imageData": "base64_image",
+  "provider": "tesseract",
+  "dataType": "table"
+}`} />
+            </Card>
+          </TabsContent>
+
+          {/* Multi-Platform Integration */}
+          <TabsContent value="platforms" className="space-y-6 mt-6">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Send to Multiple Platforms</h3>
+              <p className="text-gray-600 mb-6">Auto-send OCR results to WordPress, Shopify, Notion, Airtable, Google Sheets, and more</p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { name: "WordPress", endpoint: "/wp-json/posts", auth: "Bearer Token" },
+                  { name: "Shopify", endpoint: "/admin/api/products", auth: "OAuth" },
+                  { name: "WooCommerce", endpoint: "/wp-json/wc/v3/products", auth: "API Key" },
+                  { name: "Notion", endpoint: "/v1/pages", auth: "Bearer Token" },
+                  { name: "Airtable", endpoint: "/v0/records", auth: "API Key" },
+                  { name: "Google Sheets", endpoint: "/v4/spreadsheets", auth: "Service Account" }
+                ].map((p, i) => (
+                  <Card key={i} className="p-4 bg-blue-50 border-blue-200">
+                    <h4 className="font-semibold text-sm mb-1">{p.name}</h4>
+                    <p className="text-xs text-gray-600">{p.endpoint}</p>
+                    <Badge className="text-xs mt-2">{p.auth}</Badge>
+                  </Card>
+                ))}
+              </div>
+            </Card>
+
+            {/* WordPress Integration */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Globe className="w-5 h-5 text-blue-600" />
+                WordPress Integration
+              </h3>
+              <CodeBlock id={6} language="javascript" code={`// 1. Extract with OCR
+const ocrResult = await fetch('http://localhost:5000/api/ocr/demo', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ provider: 'tesseract', language: 'eng' })
+}).then(r => r.json());
+
+// 2. Send to WordPress
+await fetch('https://yoursite.com/wp-json/posts', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_TOKEN',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    title: 'OCR Document',
+    content: ocrResult.result.text,
+    status: 'draft'
+  })
+});`} />
+            </Card>
+
+            {/* Notion Integration */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Globe className="w-5 h-5 text-purple-600" />
+                Notion Integration
+              </h3>
+              <CodeBlock id={7} language="javascript" code={`await fetch('https://api.notion.com/v1/pages', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer NOTION_TOKEN',
+    'Notion-Version': '2022-06-28'
+  },
+  body: JSON.stringify({
+    parent: { database_id: 'DB_ID' },
+    properties: {
+      'Title': { title: [{ text: { content: 'OCR Result' } }] },
+      'Content': { rich_text: [{ text: { content: ocrResult.result.text } }] },
+      'Confidence': { number: ocrResult.confidence }
+    }
+  })
+});`} />
+            </Card>
+
+            {/* Airtable Integration */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Globe className="w-5 h-5 text-orange-600" />
+                Airtable Integration
+              </h3>
+              <CodeBlock id={8} language="javascript" code={`await fetch('https://api.airtable.com/v0/BASE_ID/TABLE_ID', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer AIRTABLE_TOKEN',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    records: [{
+      fields: {
+        'Text': ocrResult.result.text,
+        'Confidence': ocrResult.confidence,
+        'Language': 'eng',
+        'Processing Time': ocrResult.processingTime
+      }
+    }]
+  })
+});`} />
+            </Card>
+          </TabsContent>
+
+          {/* Code Examples */}
+          <TabsContent value="examples" className="space-y-6 mt-6">
+            {/* JavaScript */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">JavaScript/Node.js</h3>
+              <CodeBlock id={9} language="javascript" code={`const axios = require('axios');
+
+async function ocrProcess() {
+  const result = await axios.post('http://localhost:5000/api/ocr/demo', {
+    provider: 'tesseract',
+    language: 'eng',
+    outputFormat: 'text'
+  });
+  
+  console.log('Text:', result.data.result.text);
+  console.log('Confidence:', result.data.confidence);
+}
+
+ocrProcess();`} />
+            </Card>
+
+            {/* Python */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Python</h3>
+              <CodeBlock id={10} language="python" code={`import requests
+
+response = requests.post('http://localhost:5000/api/ocr/demo', json={
+    'provider': 'tesseract',
+    'language': 'eng',
+    'outputFormat': 'text'
+})
+
+result = response.json()
+print('Text:', result['result']['text'])
+print('Confidence:', result['confidence'])`} />
+            </Card>
+
+            {/* PHP */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">PHP</h3>
+              <CodeBlock id={11} language="php" code={`<?php
+$ch = curl_init('http://localhost:5000/api/ocr/demo');
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+    'provider' => 'tesseract',
+    'language' => 'eng',
+    'outputFormat' => 'text'
+]));
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+$result = json_decode(curl_exec($ch), true);
+echo $result['result']['text'];
+?>`} />
+            </Card>
+
+            {/* React Component */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">React Component</h3>
+              <CodeBlock id={12} language="jsx" code={`import { useState } from 'react';
+
+export function OCRComponent() {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleImageUpload = async (file) => {
+  const handleOCR = async () => {
     setLoading(true);
-    const result = await Tesseract.recognize(file, 'eng');
-    setText(result.data.text);
+    const res = await fetch('http://localhost:5000/api/ocr/demo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: 'tesseract',
+        language: 'eng'
+      })
+    });
+    const data = await res.json();
+    setText(data.result.text);
     setLoading(false);
   };
 
   return (
-    <div className="space-y-4">
-      <input type="file" onChange={(e) => e.target.files && handleImageUpload(e.target.files[0])} />
-      {loading && <p>Processing...</p>}
-      {text && <textarea value={text} readOnly />}
+    <div>
+      <button onClick={handleOCR} disabled={loading}>
+        {loading ? 'Processing...' : 'Run OCR'}
+      </button>
+      {text && <pre>{text}</pre>}
     </div>
   );
-};`}
-                          language="jsx"
-                        />
-                      </div>
-                    </div>
-                  )}
+}`} />
+            </Card>
+          </TabsContent>
 
-                  {doc.platform === "Android" && (
-                    <div className="space-y-6">
-                      <div>
-                        <h4 className="font-semibold mb-3">1. Add Dependencies</h4>
-                        <CodeBlock
-                          id={doc.id + 100}
-                          code={`dependencies {
-  implementation 'com.google.mlkit:text-recognition:16.0.0'
-  implementation 'com.google.android.gms:play-services-mlkit-text-recognition:18.0.0'
-}`}
-                          language="gradle"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3">2. Permissions</h4>
-                        <CodeBlock
-                          id={doc.id + 101}
-                          code={`<uses-permission android:name="android.permission.CAMERA" />
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />`}
-                          language="xml"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3">3. Java Implementation</h4>
-                        <CodeBlock
-                          id={doc.id + 102}
-                          code={`import com.google.mlkit.vision.common.InputImage;
-import com.google.mlkit.vision.text.TextRecognition;
-import android.graphics.Bitmap;
+          {/* Deployment */}
+          <TabsContent value="deployment" className="space-y-6 mt-6">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Docker Deployment</h3>
+              <CodeBlock id={13} language="yaml" code={`version: '3.9'
 
-public class OCRProcessor {
-  public void recognizeText(Bitmap bitmap, OnResultListener listener) {
-    InputImage image = InputImage.fromBitmap(bitmap, 0);
-    TextRecognition.getClient()
-      .process(image)
-      .addOnSuccessListener(result -> {
-        listener.onSuccess(result.getText());
-      })
-      .addOnFailureListener(e -> listener.onFailure(e));
-  }
-}`}
-                          language="java"
-                        />
-                      </div>
-                    </div>
-                  )}
+services:
+  ocr:
+    image: tesseractshadow/tesseract:latest
+    ports:
+      - "3001:3001"
+    environment:
+      OCR_PROVIDER: tesseract
+      MAX_WORKERS: 2
+      OFFLINE_MODE: "true"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./output:/app/output
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s`} />
 
-                  {doc.platform === "iOS" && (
-                    <div className="space-y-6">
-                      <div>
-                        <h4 className="font-semibold mb-3">1. Framework Setup</h4>
-                        <CodeBlock
-                          id={doc.id + 200}
-                          code={`import Vision
-import CoreML
-import UIKit`}
-                          language="swift"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3">2. Swift Implementation</h4>
-                        <CodeBlock
-                          id={doc.id + 201}
-                          code={`import Vision
+              <h4 className="font-semibold text-sm mt-6 mb-2">Start Service</h4>
+              <CodeBlock id={14} language="bash" code={`docker-compose up -d
+docker-compose logs -f ocr
+curl http://localhost:3001/health`} />
+            </Card>
 
-class OCRProcessor {
-  func recognizeText(image: UIImage, completion: @escaping (String?) -> Void) {
-    guard let cgImage = image.cgImage else { return }
-    
-    let requestHandler = VNImageRequestHandler(cgImage: cgImage)
-    let request = VNRecognizeTextRequest { request, _ in
-      let observations = request.results as? [VNRecognizedTextObservation] ?? []
-      let text = observations.compactMap { $0.topCandidates(1).first?.string }
-      completion(text.joined(separator: "\\n"))
-    }
-    
-    try? requestHandler.perform([request])
-  }
-}`}
-                          language="swift"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Flutter Hybrid Platform */}
-                  {doc.platform === "Flutter" && (
-                    <div className="space-y-6">
-                      <div>
-                        <h4 className="font-semibold mb-3">1. Dependencies Setup</h4>
-                        <CodeBlock
-                          id={doc.id + 300}
-                          code={`# pubspec.yaml
-dependencies:
-  flutter:
-    sdk: flutter
-  google_mlkit_text_recognition: ^0.10.0
-  image_picker: ^1.0.0
-  camera: ^0.10.0`}
-                          language="yaml"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3">2. Dart Implementation</h4>
-                        <CodeBlock
-                          id={doc.id + 301}
-                          code={`import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-
-class OCRService {
-  final textRecognizer = TextRecognizer();
-
-  Future<String> recognizeText(File imageFile) async {
-    try {
-      final inputImage = InputImage.fromFile(imageFile);
-      final recognizedText = await textRecognizer.processImage(inputImage);
-      
-      String text = '';
-      for (TextBlock block in recognizedText.blocks) {
-        for (TextLine line in block.lines) {
-          text += line.text + '\\n';
-        }
-      }
-      return text;
-    } catch (e) {
-      print('Error: $e');
-      return '';
-    }
-  }
-
-  void dispose() {
-    textRecognizer.close();
-  }
-}`}
-                          language="dart"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3">3. Flutter Widget</h4>
-                        <CodeBlock
-                          id={doc.id + 302}
-                          code={`import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-
-class OCRScreen extends StatefulWidget {
-  @override
-  _OCRScreenState createState() => _OCRScreenState();
-}
-
-class _OCRScreenState extends State<OCRScreen> {
-  final OCRService _ocrService = OCRService();
-  final ImagePicker _picker = ImagePicker();
-  String _recognizedText = '';
-  bool _isLoading = false;
-
-  Future<void> _pickAndRecognize() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    
-    if (image != null) {
-      setState(() => _isLoading = true);
-      
-      final text = await _ocrService.recognizeText(File(image.path));
-      
-      setState(() {
-        _recognizedText = text;
-        _isLoading = false;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('OCR Recognition')),
-      body: Column(
-        children: [
-          ElevatedButton(
-            onPressed: _pickAndRecognize,
-            child: Text('Pick Image'),
-          ),
-          if (_isLoading) CircularProgressIndicator(),
-          if (_recognizedText.isNotEmpty)
-            Expanded(
-              child: SingleChildScrollView(
-                child: Text(_recognizedText),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _ocrService.dispose();
-    super.dispose();
-  }
-}`}
-                          language="dart"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Best Practices */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-                    <h4 className="font-semibold text-blue-900 mb-3">Best Practices</h4>
-                    <ul className="space-y-2 text-sm text-blue-800">
-                      <li>✓ Use high-quality images for better accuracy</li>
-                      <li>✓ Preprocess images (resize, denoise) before OCR</li>
-                      <li>✓ Implement error handling and retry logic</li>
-                      <li>✓ Cache results to reduce processing time</li>
-                      <li>✓ Test with various languages and formats</li>
-                      <li>✓ Use proper permissions handling (especially Flutter)</li>
-                    </ul>
-                  </div>
-                </Card>
-              </TabsContent>
-            ))}
-
-            {/* Flutter Tab Content */}
-            <TabsContent value="Flutter" className="space-y-6 mt-6">
-              <Card className="p-6">
-                <h3 className="text-xl font-bold mb-4">Flutter Hybrid OCR Implementation</h3>
-                <p className="text-gray-700 mb-6">
-                  Build cross-platform OCR applications with Flutter. Flutter provides excellent support for integrating native OCR libraries on both Android and iOS through platform channels.
-                </p>
-
-                <div className="space-y-6">
-                  <div>
-                    <h4 className="font-semibold mb-3">1. Project Setup</h4>
-                    <CodeBlock
-                      id={9999}
-                      code={`flutter create ocr_app
-cd ocr_app
-
-# Add to pubspec.yaml
-flutter pub add google_mlkit_text_recognition image_picker camera`}
-                      language="bash"
-                    />
-                  </div>
-
-                  <div>
-                    <h4 className="font-semibold mb-3">2. Android Setup (AndroidManifest.xml)</h4>
-                    <CodeBlock
-                      id={9998}
-                      code={`<uses-permission android:name="android.permission.CAMERA" />
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-<application>
-  <!-- ML Kit will download models on first use -->
-</application>`}
-                      language="xml"
-                    />
-                  </div>
-
-                  <div>
-                    <h4 className="font-semibold mb-3">3. iOS Setup (Info.plist)</h4>
-                    <CodeBlock
-                      id={9997}
-                      code={`<key>NSCameraUsageDescription</key>
-<string>Camera is needed for OCR scanning</string>
-<key>NSPhotoLibraryUsageDescription</key>
-<string>Photo library is needed to select images</string>
-<key>NSMicrophoneUsageDescription</key>
-<string>Microphone is needed for recording</string>`}
-                      language="xml"
-                    />
-                  </div>
-
-                  <div>
-                    <h4 className="font-semibold mb-3">4. Complete Flutter App Example</h4>
-                    <CodeBlock
-                      id={9996}
-                      code={`import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'dart:io';
-
-void main() => runApp(OCRApp());
-
-class OCRApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter OCR',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: OCRScreen(),
-    );
-  }
-}
-
-class OCRScreen extends StatefulWidget {
-  @override
-  _OCRScreenState createState() => _OCRScreenState();
-}
-
-class _OCRScreenState extends State<OCRScreen> {
-  final textRecognizer = TextRecognizer();
-  final ImagePicker _picker = ImagePicker();
-  
-  File? _selectedImage;
-  String _recognizedText = '';
-  bool _isProcessing = false;
-
-  Future<void> _pickImage(ImageSource source) async {
-    final XFile? image = await _picker.pickImage(source: source);
-    if (image != null) {
-      await _recognizeText(File(image.path));
-    }
-  }
-
-  Future<void> _recognizeText(File imageFile) async {
-    setState(() => _isProcessing = true);
-    
-    try {
-      final inputImage = InputImage.fromFile(imageFile);
-      final recognizedText = await textRecognizer.processImage(inputImage);
-      
-      String extractedText = '';
-      for (TextBlock block in recognizedText.blocks) {
-        for (TextLine line in block.lines) {
-          extractedText += line.text + '\\n';
-        }
-      }
-
-      setState(() {
-        _selectedImage = imageFile;
-        _recognizedText = extractedText;
-        _isProcessing = false;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e'))
-      );
-      setState(() => _isProcessing = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Flutter OCR')),
-      body: Column(
-        children: [
-          if (_selectedImage != null)
-            Image.file(_selectedImage!, height: 200),
-          if (_isProcessing)
-            Center(child: CircularProgressIndicator())
-          else
-            Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text(_recognizedText.isEmpty 
-                    ? 'No text recognized yet' 
-                    : _recognizedText),
-                ),
-              ),
-            ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showImageSourceDialog(),
-        label: Text('Pick Image'),
-        icon: Icon(Icons.image),
-      ),
-    );
-  }
-
-  void _showImageSourceDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Select Image Source'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _pickImage(ImageSource.camera);
-            },
-            child: Text('Camera'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _pickImage(ImageSource.gallery);
-            },
-            child: Text('Gallery'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    textRecognizer.close();
-    super.dispose();
-  }
-}`}
-                      language="dart"
-                    />
-                  </div>
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Environment Variables</h3>
+              <div className="space-y-3">
+                <div className="border-l-4 border-blue-500 pl-4">
+                  <code className="text-sm font-semibold">OCR_PROVIDER=tesseract</code>
+                  <p className="text-xs text-gray-600">Provider type</p>
                 </div>
-
-                {/* Best Practices */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-                  <h4 className="font-semibold text-blue-900 mb-3">Flutter Best Practices</h4>
-                  <ul className="space-y-2 text-sm text-blue-800">
-                    <li>✓ Use FutureBuilder or Riverpod for state management</li>
-                    <li>✓ Implement proper error handling with try-catch</li>
-                    <li>✓ Request permissions using permission_handler package</li>
-                    <li>✓ Cache text recognition models for better performance</li>
-                    <li>✓ Test on both Android and iOS simulators/devices</li>
-                    <li>✓ Use platform channels for complex native features</li>
-                  </ul>
+                <div className="border-l-4 border-blue-500 pl-4">
+                  <code className="text-sm font-semibold">MAX_WORKERS=2</code>
+                  <p className="text-xs text-gray-600">Parallel workers</p>
                 </div>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        ) : (
-          <Card className="p-8 text-center">
-            <p className="text-gray-600">No documentation available. Please check backend connection.</p>
-          </Card>
-        )}
+                <div className="border-l-4 border-blue-500 pl-4">
+                  <code className="text-sm font-semibold">OFFLINE_MODE=true</code>
+                  <p className="text-xs text-gray-600">Run offline only</p>
+                </div>
+                <div className="border-l-4 border-blue-500 pl-4">
+                  <code className="text-sm font-semibold">CACHE_ENABLED=true</code>
+                  <p className="text-xs text-gray-600">Enable caching</p>
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        {/* Footer */}
+        <Card className="p-4 bg-yellow-50 border-yellow-200">
+          <p className="text-sm text-yellow-800">
+            <strong>Base URL:</strong> <code>http://localhost:5000/api</code> | <strong>Free:</strong> No API keys | <strong>Offline:</strong> Fully offline capable
+          </p>
+        </Card>
       </div>
     </DashboardLayout>
   );

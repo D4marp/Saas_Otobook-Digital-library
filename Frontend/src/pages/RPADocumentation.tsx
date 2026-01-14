@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Copy, Bot, CheckCircle, AlertCircle } from "lucide-react";
-import { documentationAPI } from "@/lib/api";
+import { Badge } from "@/components/ui/badge";
+import { Copy, CheckCircle, Code2, Zap, Globe } from "lucide-react";
 
 const CodeBlock = ({ code, language, id }: { code: string; language: string; id: number }) => {
   const [copied, setCopied] = useState(false);
@@ -43,638 +43,506 @@ const CodeBlock = ({ code, language, id }: { code: string; language: string; id:
 };
 
 export default function RPADocumentation() {
-  const [docs, setDocs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchDocumentation();
-  }, []);
-
-  const fetchDocumentation = async () => {
-    try {
-      const response = await documentationAPI.getDocumentationByType("RPA");
-      setDocs(response.data.data || []);
-    } catch (err) {
-      setError("Failed to load documentation from backend.");
-      console.error("Error fetching documentation:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <DashboardLayout title="RPA Documentation" subtitle="Loading...">
-        <Card className="p-8 text-center">
-          <p className="text-gray-600">Loading RPA documentation...</p>
-        </Card>
-      </DashboardLayout>
-    );
-  }
-
   return (
     <DashboardLayout
-      title="Robot Framework & RPA Documentation"
-      subtitle="Master Robotic Process Automation with Robot Framework"
+      title="RPA API Documentation"
+      subtitle="Complete API reference for Robotic Process Automation workflows"
     >
       <div className="space-y-6">
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-800">
-            <AlertCircle className="w-5 h-5" />
-            {error}
-          </div>
-        )}
-
         {/* Overview */}
-        <Card className="p-6 bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200">
+        <Card className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
           <div className="flex items-start gap-4">
-            <Bot className="w-8 h-8 text-orange-600 mt-1 flex-shrink-0" />
+            <Zap className="w-8 h-8 text-purple-600 mt-1 flex-shrink-0" />
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Robot Framework & RPA</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">RPA Automation Engine</h2>
               <p className="text-gray-700">
-                Automate business processes with Robot Framework. From installation to advanced techniques, CI/CD integration, and OTobook SaaS integration.
+                Real executable workflows. 7 action types (OCR, API, Data, Browser, File, Database, Email). Multi-platform support. Execute and monitor automation tasks across WordPress, Shopify, Notion, Airtable, Google Sheets, and more.
               </p>
             </div>
           </div>
         </Card>
 
-        {/* Tabs - Dynamic + Flutter */}
-        {docs.length > 0 ? (
-          <Tabs defaultValue={docs[0]?.title || "Installation"} className="w-full">
-            <TabsList className="grid w-full grid-cols-5 lg:grid-cols-6">
-              {docs.map((doc) => (
-                <TabsTrigger key={doc.id} value={doc.title || ""} className="text-xs sm:text-sm">
-                  {doc.title?.split(" ")[0]}
-                </TabsTrigger>
-              ))}
-              <TabsTrigger value="Flutter" className="text-xs sm:text-sm">Flutter</TabsTrigger>
-            </TabsList>
+        <Tabs defaultValue="endpoints" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="endpoints">Endpoints</TabsTrigger>
+            <TabsTrigger value="workflows">Workflows</TabsTrigger>
+            <TabsTrigger value="examples">Examples</TabsTrigger>
+            <TabsTrigger value="deployment">Deploy</TabsTrigger>
+          </TabsList>
 
-            {docs.map((doc) => (
-              <TabsContent key={doc.id} value={doc.title || ""} className="space-y-6 mt-6">
-                <Card className="p-6">
-                  <h3 className="text-xl font-bold mb-2">{doc.title}</h3>
-                  <p className="text-gray-700 mb-6">{doc.description}</p>
-                  <p className="text-gray-600 mb-6">{doc.content}</p>
+          {/* API Endpoints */}
+          <TabsContent value="endpoints" className="space-y-6 mt-6">
+            {/* GET /api/rpa/platforms */}
+            <Card className="p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Get Platforms</h3>
+                <Badge>GET</Badge>
+              </div>
+              <code className="text-sm bg-gray-100 p-3 rounded block mb-4">/api/rpa/platforms</code>
+              <p className="text-sm text-gray-600 mb-4">List all supported platforms</p>
+              <CodeBlock id={1} language="bash" code="curl http://localhost:5000/api/rpa/platforms" />
+            </Card>
 
-                  {/* Installation */}
-                  {doc.title?.includes("Installation") && (
-                    <div className="space-y-6">
-                      <div>
-                        <h4 className="font-semibold mb-3">System Requirements</h4>
-                        <ul className="space-y-2 text-gray-700 mb-4">
-                          <li>• Python 3.7 or higher</li>
-                          <li>• 2GB RAM minimum</li>
-                          <li>• 500MB disk space</li>
-                          <li>• Windows, macOS, or Linux</li>
-                        </ul>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3">Step 1: Install Python</h4>
-                        <CodeBlock
-                          id={doc.id}
-                          code="# Download from python.org and install\npython --version  # Verify installation"
-                          language="bash"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3">Step 2: Install Robot Framework</h4>
-                        <CodeBlock
-                          id={doc.id + 1}
-                          code="pip install robotframework\nrobot --version  # Verify installation"
-                          language="bash"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3">Step 3: Install Libraries</h4>
-                        <CodeBlock
-                          id={doc.id + 2}
-                          code={`pip install robotframework-seleniumlibrary
-pip install robotframework-requests
-pip install robotframework-datalibrary
-pip install robotframework-pabot
-pip install robotframework-image-comparison`}
-                          language="bash"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3">Step 4: Create First Test</h4>
-                        <CodeBlock
-                          id={doc.id + 3}
-                          code={`*** Settings ***
-Library    BuiltIn
+            {/* GET /api/rpa/templates */}
+            <Card className="p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Get Templates</h3>
+                <Badge>GET</Badge>
+              </div>
+              <code className="text-sm bg-gray-100 p-3 rounded block mb-4">/api/rpa/templates</code>
+              <p className="text-sm text-gray-600 mb-4">List workflow templates</p>
+              <CodeBlock id={2} language="bash" code="curl http://localhost:5000/api/rpa/templates" />
+            </Card>
 
-*** Test Cases ***
-My First Test
-    Log    Hello, Robot Framework!
-    Should Be Equal    ${1}    ${1}`}
-                          language="robot"
-                        />
-                      </div>
-                    </div>
-                  )}
+            {/* GET /api/rpa/actions */}
+            <Card className="p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Get Action Types</h3>
+                <Badge>GET</Badge>
+              </div>
+              <code className="text-sm bg-gray-100 p-3 rounded block mb-4">/api/rpa/actions</code>
+              <p className="text-sm text-gray-600 mb-4">List available action types</p>
+              <CodeBlock id={3} language="json" code={`[
+  { type: "ocr", actions: ["extract_text", "extract_form", "extract_table"] },
+  { type: "api", actions: ["get", "post", "put", "delete"] },
+  { type: "data", actions: ["transform", "validate", "classify", "merge"] },
+  { type: "browser", actions: ["navigate", "click", "extract_data"] },
+  { type: "file", actions: ["read", "write", "delete", "zip"] },
+  { type: "database", actions: ["query", "insert", "update", "delete"] },
+  { type: "email", actions: ["send", "read", "forward"] }
+]`} />
+            </Card>
 
-                  {/* Basics */}
-                  {doc.title?.includes("Basics") && (
-                    <div className="space-y-6">
-                      <div>
-                        <h4 className="font-semibold mb-3">Test File Structure</h4>
-                        <CodeBlock
-                          id={doc.id + 10}
-                          code={`*** Settings ***
-Library    Collections
-Library    BuiltIn
-
-*** Variables ***
-\${BROWSER}    chrome
-\${URL}    https://example.com
-
-*** Test Cases ***
-User Login Test
-    Open Browser    \${URL}    \${BROWSER}
-    Login With Credentials    admin    password
-    Verify Dashboard
-
-*** Keywords ***
-Login With Credentials
-    [Arguments]    \${username}    \${password}
-    Input Text    id:username    \${username}
-    Input Password    id:password    \${password}
-    Click Button    id:login`}
-                          language="robot"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3">Common Keywords</h4>
-                        <CodeBlock
-                          id={doc.id + 11}
-                          code={`Log    message            # Print to console
-Sleep    2s               # Wait 2 seconds
-Should Be Equal    a    b    # Assert equality
-Run Keyword If    condition    keyword
-Repeat Keyword    5 times    keyword
-Set Global Variable    \${VAR}    value`}
-                          language="robot"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3">Data-Driven Testing</h4>
-                        <CodeBlock
-                          id={doc.id + 12}
-                          code={`*** Test Cases ***
-Login With Different Users
-    [Template]    Login Test
-    admin         password123
-    user1         pass@456
-    user2         secure789
-
-*** Keywords ***
-Login Test
-    [Arguments]    \${username}    \${password}
-    Open Browser    https://app.com    chrome
-    Input Text    id:user    \${username}
-    Input Text    id:pwd    \${password}
-    Click Button    Login
-    [Teardown]    Close Browser`}
-                          language="robot"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Advanced */}
-                  {doc.title?.includes("Advanced") && (
-                    <div className="space-y-6">
-                      <div>
-                        <h4 className="font-semibold mb-3">Custom Python Library</h4>
-                        <CodeBlock
-                          id={doc.id + 20}
-                          code={`# my_library.py
-class MyLibrary:
-    def __init__(self):
-        self.count = 0
-    
-    def increment_counter(self):
-        self.count += 1
-        return self.count
-    
-    def custom_operation(self, arg1, arg2):
-        return f"Result: {arg1} + {arg2}"
-    
-    def validate_email(self, email):
-        import re
-        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        return bool(re.match(pattern, email))`}
-                          language="python"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3">API Testing</h4>
-                        <CodeBlock
-                          id={doc.id + 21}
-                          code={`*** Settings ***
-Library    RequestsLibrary
-Library    Collections
-
-*** Test Cases ***
-Test API Endpoint
-    Create Session    api    https://api.example.com
-    \${response}=    Get Request    api    /users
-    Should Be Equal As Integers    \${response.status_code}    200
-    \${body}=    Convert To Dictionary    \${response.json()}
-    Should Contain Key    \${body}    data`}
-                          language="robot"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3">Database Testing</h4>
-                        <CodeBlock
-                          id={doc.id + 22}
-                          code={`*** Settings ***
-Library    DatabaseLibrary
-
-*** Test Cases ***
-Test Database Query
-    Connect To Database    mysql    dbname    root    password    localhost
-    \${result}=    Query    SELECT * FROM users WHERE id=1
-    Should Be Equal    \${result}[0][0]    1
-    Disconnect From Database`}
-                          language="robot"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* CI/CD */}
-                  {doc.title?.includes("CI/CD") && (
-                    <div className="space-y-6">
-                      <div>
-                        <h4 className="font-semibold mb-3">GitHub Actions Workflow</h4>
-                        <CodeBlock
-                          id={doc.id + 30}
-                          code={`name: Robot Tests
-on: [push, pull_request]
-
-jobs:
-  robot:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-      - run: pip install robotframework
-      - run: robot tests/`}
-                          language="yaml"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3">Docker Integration</h4>
-                        <CodeBlock
-                          id={doc.id + 31}
-                          code={`FROM python:3.9
-RUN pip install robotframework robotframework-seleniumlibrary
-COPY tests /tests
-WORKDIR /tests
-CMD ["robot", "."]`}
-                          language="dockerfile"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3">OTobook SaaS Integration</h4>
-                        <CodeBlock
-                          id={doc.id + 32}
-                          code={`*** Settings ***
-Library    RequestsLibrary
-
-*** Test Cases ***
-Submit Test Report to OTobook
-    Create Session    otobook    http://localhost:3001/api
-    \${payload}=    Create Dictionary    testName=My Test    status=passed
-    \${response}=    Post Request    otobook    /automation/report    json=\${payload}
-    Should Be Equal As Integers    \${response.status_code}    200`}
-                          language="robot"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Quick Reference */}
-                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mt-6">
-                    <h4 className="font-semibold text-orange-900 mb-3">Key Takeaways</h4>
-                    <ul className="space-y-2 text-sm text-orange-800">
-                      <li>✓ Robot Framework is easy to learn and human-readable</li>
-                      <li>✓ Supports multiple libraries for different testing needs</li>
-                      <li>✓ Excellent for both manual and automated testing</li>
-                      <li>✓ Great community and extensive documentation</li>
-                      <li>✓ Can be integrated into CI/CD pipelines</li>
-                    </ul>
-                  </div>
-                </Card>
-              </TabsContent>
-            ))}
-
-            {/* Flutter Tab */}
-            <TabsContent value="Flutter" className="space-y-6 mt-6">
-              <Card className="p-6">
-                <h3 className="text-xl font-bold mb-4">Flutter RPA Integration</h3>
-                <p className="text-gray-700 mb-6">
-                  Build cross-platform mobile RPA applications with Flutter. Integrate Robot Framework automation with Flutter apps through platform channels and REST APIs.
-                </p>
-
-                <div className="space-y-6">
-                  <div>
-                    <h4 className="font-semibold mb-3">1. Flutter RPA Architecture</h4>
-                    <CodeBlock
-                      id={10000}
-                      code={`# pubspec.yaml
-dependencies:
-  flutter:
-    sdk: flutter
-  http: ^1.1.0
-  provider: ^6.0.0
-  intl: ^0.19.0
-  flutter_dotenv: ^5.0.0`}
-                      language="yaml"
-                    />
-                  </div>
-
-                  <div>
-                    <h4 className="font-semibold mb-3">2. RPA Service Layer (Dart)</h4>
-                    <CodeBlock
-                      id={10001}
-                      code={`import 'package:http/http.dart' as http;
-import 'dart:convert';
-
-class RPAService {
-  final String baseUrl = 'http://localhost:3001/api';
-  
-  Future<Map<String, dynamic>> runAutomation(String taskName, Map<String, dynamic> params) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/rpa/execute'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'taskName': taskName,
-          'parameters': params,
-          'timestamp': DateTime.now().toIso8601String(),
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        throw Exception('Failed to execute automation');
+            {/* POST /api/rpa/create */}
+            <Card className="p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Create Workflow</h3>
+                <Badge variant="outline">POST</Badge>
+              </div>
+              <code className="text-sm bg-gray-100 p-3 rounded block mb-4">/api/rpa/create</code>
+              <p className="text-sm text-gray-600 mb-4">Create a new RPA workflow</p>
+              <CodeBlock id={4} language="json" code={`{
+  "name": "Invoice to Airtable",
+  "description": "Extract invoice and save to Airtable",
+  "steps": [
+    {
+      "type": "ocr",
+      "action": "extract_text",
+      "config": { "language": "eng" }
+    },
+    {
+      "type": "api",
+      "action": "post",
+      "config": {
+        "url": "https://api.airtable.com/v0/BASE/TABLE",
+        "headers": { "Authorization": "Bearer TOKEN" }
       }
-    } catch (e) {
-      print('RPA Error: $e');
-      rethrow;
     }
-  }
+  ]
+}`} />
+            </Card>
 
-  Future<List<dynamic>> getAutomationResults(String taskId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/rpa/results/$taskId'),
-    );
-    
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body)['data'];
+            {/* POST /api/rpa/execute */}
+            <Card className="p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Execute Workflow</h3>
+                <Badge variant="outline">POST</Badge>
+              </div>
+              <code className="text-sm bg-gray-100 p-3 rounded block mb-4">/api/rpa/execute</code>
+              <p className="text-sm text-gray-600 mb-4">Execute a workflow and get results</p>
+              <CodeBlock id={5} language="bash" code={`curl -X POST http://localhost:5000/api/rpa/execute \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "workflowId": "workflow_123",
+    "input": {
+      "imageData": "base64_image_string",
+      "targetPlatform": "airtable"
     }
-    throw Exception('Failed to fetch results');
+  }'`} />
+            </Card>
+
+            {/* POST /api/rpa/test-connection */}
+            <Card className="p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Test Platform Connection</h3>
+                <Badge variant="outline">POST</Badge>
+              </div>
+              <code className="text-sm bg-gray-100 p-3 rounded block mb-4">/api/rpa/test-connection</code>
+              <p className="text-sm text-gray-600 mb-4">Verify connection to platform</p>
+              <CodeBlock id={6} language="json" code={`{
+  "platform": "wordpress",
+  "config": {
+    "url": "https://yoursite.com",
+    "username": "admin",
+    "password": "token"
   }
-}`}
-                      language="dart"
-                    />
-                  </div>
+}`} />
+            </Card>
 
-                  <div>
-                    <h4 className="font-semibold mb-3">3. RPA Task Execution Widget</h4>
-                    <CodeBlock
-                      id={10002}
-                      code={`import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+            {/* POST /api/rpa/deploy */}
+            <Card className="p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Deploy Workflow</h3>
+                <Badge variant="outline">POST</Badge>
+              </div>
+              <code className="text-sm bg-gray-100 p-3 rounded block mb-4">/api/rpa/deploy</code>
+              <p className="text-sm text-gray-600 mb-4">Deploy workflow to production</p>
+              <CodeBlock id={7} language="json" code={`{
+  "workflowId": "workflow_123",
+  "schedule": "0 0 * * *",
+  "retryPolicy": {
+    "maxRetries": 3,
+    "backoffMultiplier": 2
+  },
+  "notifications": ["email@example.com"]
+}`} />
+            </Card>
+          </TabsContent>
 
-class RPATaskExecutor extends StatefulWidget {
-  final String taskName;
-  
-  const RPATaskExecutor({required this.taskName});
+          {/* Workflow Templates */}
+          <TabsContent value="workflows" className="space-y-6 mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                { name: "Invoice Processing", desc: "Extract invoice data and save to platform" },
+                { name: "Product Sync", desc: "Sync products between Shopify and WordPress" },
+                { name: "Document Archiving", desc: "Classify and archive documents" },
+                { name: "Data Backup", desc: "Backup data to Google Sheets/Airtable" },
+                { name: "Web Scraping", desc: "Extract web content to database" },
+                { name: "Email Automation", desc: "Process emails and trigger actions" }
+              ].map((t, i) => (
+                <Card key={i} className="p-4 bg-blue-50 border-blue-200">
+                  <h4 className="font-semibold text-sm mb-1">{t.name}</h4>
+                  <p className="text-xs text-gray-600">{t.desc}</p>
+                </Card>
+              ))}
+            </div>
 
-  @override
-  _RPATaskExecutorState createState() => _RPATaskExecutorState();
+            {/* Invoice Processing Example */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Invoice Processing Workflow</h3>
+              <CodeBlock id={8} language="json" code={`{
+  "id": "invoice_processing",
+  "name": "Invoice Processing",
+  "steps": [
+    {
+      "stepId": 1,
+      "type": "ocr",
+      "action": "extract_form",
+      "input": { "image": "invoice.pdf" },
+      "output": { "invoiceNumber": "", "amount": "", "date": "" }
+    },
+    {
+      "stepId": 2,
+      "type": "data",
+      "action": "validate",
+      "rules": { "invoiceNumber": "required", "amount": "numeric" }
+    },
+    {
+      "stepId": 3,
+      "type": "api",
+      "action": "post",
+      "url": "https://api.airtable.com/v0/base/invoices",
+      "headers": { "Authorization": "Bearer TOKEN" }
+    }
+  ]
+}`} />
+            </Card>
+
+            {/* Product Sync Example */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Product Sync (Shopify → WordPress)</h3>
+              <CodeBlock id={9} language="json" code={`{
+  "id": "product_sync",
+  "name": "Product Sync",
+  "steps": [
+    {
+      "stepId": 1,
+      "type": "api",
+      "action": "get",
+      "url": "https://your-store.myshopify.com/admin/api/2024-01/products.json",
+      "headers": { "X-Shopify-Access-Token": "TOKEN" }
+    },
+    {
+      "stepId": 2,
+      "type": "data",
+      "action": "transform",
+      "mapping": {
+        "shopify_title": "post_title",
+        "shopify_description": "post_content",
+        "shopify_price": "post_meta.price"
+      }
+    },
+    {
+      "stepId": 3,
+      "type": "api",
+      "action": "post",
+      "url": "https://yoursite.com/wp-json/wc/v3/products",
+      "headers": { "Authorization": "Bearer TOKEN" }
+    }
+  ]
+}`} />
+            </Card>
+          </TabsContent>
+
+          {/* Code Examples */}
+          <TabsContent value="examples" className="space-y-6 mt-6">
+            {/* JavaScript */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">JavaScript/Node.js</h3>
+              <CodeBlock id={10} language="javascript" code={`const axios = require('axios');
+
+async function executeRPA() {
+  // 1. Get available templates
+  const templates = await axios.get('http://localhost:5000/api/rpa/templates');
+  console.log('Templates:', templates.data);
+
+  // 2. Create custom workflow
+  const workflow = await axios.post('http://localhost:5000/api/rpa/create', {
+    name: 'My Workflow',
+    steps: [
+      { type: 'ocr', action: 'extract_text' },
+      { type: 'api', action: 'post', url: 'https://api.airtable.com/...' }
+    ]
+  });
+
+  // 3. Execute workflow
+  const result = await axios.post('http://localhost:5000/api/rpa/execute', {
+    workflowId: workflow.data.id,
+    input: { imageData: 'base64_string' }
+  });
+
+  console.log('Execution result:', result.data);
 }
 
-class _RPATaskExecutorState extends State<RPATaskExecutor> {
-  late RPAService _rpaService;
-  bool _isExecuting = false;
-  Map<String, dynamic>? _result;
-  String? _error;
+executeRPA();`} />
+            </Card>
 
-  @override
-  void initState() {
-    super.initState();
-    _rpaService = context.read<RPAService>();
-  }
+            {/* Python */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Python</h3>
+              <CodeBlock id={11} language="python" code={`import requests
 
-  Future<void> _executeTask() async {
-    setState(() {
-      _isExecuting = true;
-      _error = null;
+# 1. Get platforms
+platforms = requests.get('http://localhost:5000/api/rpa/platforms').json()
+print('Platforms:', [p['name'] for p in platforms])
+
+# 2. Create workflow
+workflow = requests.post('http://localhost:5000/api/rpa/create', json={
+    'name': 'Invoice Processing',
+    'steps': [
+        {'type': 'ocr', 'action': 'extract_form'},
+        {'type': 'data', 'action': 'validate'},
+        {'type': 'api', 'action': 'post', 'url': 'https://api.example.com'}
+    ]
+}).json()
+
+# 3. Execute
+result = requests.post('http://localhost:5000/api/rpa/execute', json={
+    'workflowId': workflow['id'],
+    'input': {'imageData': 'base64_data'}
+}).json()
+
+print('Result:', result)`} />
+            </Card>
+
+            {/* React Component */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">React Component</h3>
+              <CodeBlock id={12} language="jsx" code={`import { useState } from 'react';
+
+export function RPAExecutor() {
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleExecute = async (workflowId) => {
+    setLoading(true);
+    const res = await fetch('http://localhost:5000/api/rpa/execute', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        workflowId,
+        input: { imageData: 'base64_image' }
+      })
     });
+    const data = await res.json();
+    setResult(data);
+    setLoading(false);
+  };
 
-    try {
-      final result = await _rpaService.runAutomation(
-        widget.taskName,
-        {'userId': 'user123', 'action': 'process_document'},
-      );
-      
-      setState(() => _result = result);
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Task executed successfully')),
-      );
-    } catch (e) {
-      setState(() => _error = e.toString());
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: \$e'), backgroundColor: Colors.red),
-      );
-    } finally {
-      setState(() => _isExecuting = false);
+  return (
+    <div>
+      <button onClick={() => handleExecute('workflow_123')}>
+        {loading ? 'Executing...' : 'Execute Workflow'}
+      </button>
+      {result && (
+        <pre>{JSON.stringify(result, null, 2)}</pre>
+      )}
+    </div>
+  );
+}`} />
+            </Card>
+
+            {/* API to API Integration */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Platform Integration</h3>
+              <CodeBlock id={13} language="javascript" code={`// Example: Extract invoice with OCR, store to Airtable, notify via email
+
+const workflow = {
+  name: 'Complete Invoice Workflow',
+  steps: [
+    // Step 1: Extract with OCR
+    {
+      type: 'ocr',
+      action: 'extract_form',
+      config: { targetFields: ['invoiceNumber', 'amount', 'date', 'vendor'] }
+    },
+    // Step 2: Validate
+    {
+      type: 'data',
+      action: 'validate',
+      rules: { invoiceNumber: 'required', amount: 'numeric|>0' }
+    },
+    // Step 3: Store to Airtable
+    {
+      type: 'api',
+      action: 'post',
+      config: {
+        url: 'https://api.airtable.com/v0/BASE/Invoices',
+        headers: { 'Authorization': 'Bearer PAT' }
+      }
+    },
+    // Step 4: Email notification
+    {
+      type: 'email',
+      action: 'send',
+      config: {
+        to: 'accounting@company.com',
+        subject: 'Invoice processed: {invoiceNumber}',
+        template: 'invoice_notification'
+      }
     }
-  }
+  ]
+};`} />
+            </Card>
+          </TabsContent>
 
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(widget.taskName, style: Theme.of(context).textTheme.headlineSmall),
-            SizedBox(height: 16),
-            if (_isExecuting)
-              LinearProgressIndicator()
-            else
-              ElevatedButton(
-                onPressed: _executeTask,
-                child: Text('Execute Task'),
-              ),
-            if (_result != null) ...[
-              SizedBox(height: 16),
-              Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.green[50],
-                  border: Border.all(color: Colors.green),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Status: \${_result!['status']}', style: TextStyle(color: Colors.green[900])),
-                    Text('Records Processed: \${_result!['recordsProcessed']}'),
-                  ],
-                ),
-              ),
-            ],
-            if (_error != null) ...[
-              SizedBox(height: 16),
-              Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.red[50],
-                  border: Border.all(color: Colors.red),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(_error!, style: TextStyle(color: Colors.red[900])),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}`}
-                      language="dart"
-                    />
-                  </div>
+          {/* Deployment */}
+          <TabsContent value="deployment" className="space-y-6 mt-6">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Docker Deployment</h3>
+              <CodeBlock id={14} language="yaml" code={`version: '3.9'
 
-                  <div>
-                    <h4 className="font-semibold mb-3">4. Robot Framework Integration Script</h4>
-                    <CodeBlock
-                      id={10003}
-                      code={`*** Settings ***
-Library    RequestsLibrary
-Library    Collections
+services:
+  rpa:
+    image: otobook/rpa-engine:latest
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      REDIS_URL: redis://redis:6379
+      DB_HOST: mysql
+      DB_PORT: 3306
+      MAX_PARALLEL_WORKFLOWS: 5
+      WORKFLOW_TIMEOUT: 3600
+      LOG_LEVEL: info
+    depends_on:
+      - mysql
+      - redis
+    volumes:
+      - ./workflows:/app/workflows
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-*** Variables ***
-\${FLUTTER_APP_URL}    http://localhost:3001/api
-\${TASK_ID}    automated_task_001
-
-*** Test Cases ***
-Process Data from Flutter
-    Create Session    flutter_session    \${FLUTTER_APP_URL}
+  scheduler:
+    image: otobook/rpa-scheduler:latest
+    environment:
+      REDIS_URL: redis://redis:6379
+      API_URL: http://rpa:5000
+    depends_on:
+      - redis
+      - rpa
     
-    \${payload}=    Create Dictionary
-    ...    taskName=process_document
-    ...    parameters=\${EMPTY}
-    
-    \${response}=    Post Request    flutter_session    /rpa/execute
-    ...    json=\${payload}
-    
-    Should Be Equal As Integers    \${response.status_code}    200
-    
-    \${result}=    Evaluate    json.loads("""\${response.text}""")    json
-    
-    Should Be Equal    \${result['status']}    success
-    
-    Log    Processed \${result['recordsProcessed']} records`}
-                      language="robot"
-                    />
-                  </div>
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: otobook_saas
+    volumes:
+      - mysql_data:/var/lib/mysql
 
-                  <div>
-                    <h4 className="font-semibold mb-3">5. Main App with Provider Setup</h4>
-                    <CodeBlock
-                      id={10004}
-                      code={`import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
 
-void main() {
-  runApp(const RPAApp());
-}
+volumes:
+  mysql_data:
+  redis_data:`} />
+            </Card>
 
-class RPAApp extends StatelessWidget {
-  const RPAApp({Key? key}) : super(key: key);
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Deployment Steps</h3>
+              <CodeBlock id={15} language="bash" code={`# 1. Build Docker image
+docker build -t otobook/rpa-engine:latest .
 
-  @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        Provider<RPAService>(create: (_) => RPAService()),
-      ],
-      child: MaterialApp(
-        title: 'Flutter RPA',
-        theme: ThemeData(primarySwatch: Colors.blue),
-        home: HomeScreen(),
-      ),
-    );
-  }
-}
+# 2. Start all services
+docker-compose -f docker-compose.yml up -d
 
-class HomeScreen extends StatelessWidget {
-  final List<String> tasks = [
-    'Process Documents',
-    'Extract Data',
-    'Generate Reports',
-    'Update Database',
-  ];
+# 3. Verify deployment
+docker-compose logs -f rpa
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('RPA Automation')),
-      body: ListView.builder(
-        padding: EdgeInsets.all(16),
-        itemCount: tasks.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: EdgeInsets.only(bottom: 16),
-            child: RPATaskExecutor(taskName: tasks[index]),
-          );
-        },
-      ),
-    );
-  }
-}`}
-                      language="dart"
-                    />
-                  </div>
+# 4. Check health
+curl http://localhost:5000/api/health
+
+# 5. List available platforms
+curl http://localhost:5000/api/rpa/platforms`} />
+            </Card>
+
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Environment Variables</h3>
+              <div className="space-y-3">
+                <div className="border-l-4 border-purple-500 pl-4">
+                  <code className="text-sm font-semibold">MAX_PARALLEL_WORKFLOWS=5</code>
+                  <p className="text-xs text-gray-600">Concurrent workflow limit</p>
                 </div>
-
-                {/* Flutter RPA Best Practices */}
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mt-6">
-                  <h4 className="font-semibold text-orange-900 mb-3">Flutter + RPA Best Practices</h4>
-                  <ul className="space-y-2 text-sm text-orange-800">
-                    <li>✓ Use Provider or Riverpod for state management</li>
-                    <li>✓ Implement error handling and retry logic</li>
-                    <li>✓ Use REST APIs for communication with Robot Framework</li>
-                    <li>✓ Implement proper logging and monitoring</li>
-                    <li>✓ Cache automation results for offline functionality</li>
-                    <li>✓ Use platform channels for native RPA capabilities</li>
-                    <li>✓ Test on both Android and iOS devices</li>
-                    <li>✓ Implement proper authentication/authorization</li>
-                  </ul>
+                <div className="border-l-4 border-purple-500 pl-4">
+                  <code className="text-sm font-semibold">WORKFLOW_TIMEOUT=3600</code>
+                  <p className="text-xs text-gray-600">Workflow max duration (seconds)</p>
                 </div>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        ) : (
-          <Card className="p-8 text-center">
-            <p className="text-gray-600">No documentation available. Please check backend connection.</p>
-          </Card>
-        )}
+                <div className="border-l-4 border-purple-500 pl-4">
+                  <code className="text-sm font-semibold">REDIS_URL=redis://redis:6379</code>
+                  <p className="text-xs text-gray-600">Queue and cache server</p>
+                </div>
+                <div className="border-l-4 border-purple-500 pl-4">
+                  <code className="text-sm font-semibold">LOG_LEVEL=info</code>
+                  <p className="text-xs text-gray-600">Logging level</p>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-6 bg-green-50 border-green-200">
+              <h3 className="text-lg font-semibold mb-3">Supported Platforms</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {['WordPress', 'Shopify', 'WooCommerce', 'Notion', 'Airtable', 'Google Sheets'].map((p) => (
+                  <Badge key={p} variant="outline" className="w-full text-center justify-center">
+                    {p}
+                  </Badge>
+                ))}
+              </div>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        {/* Footer */}
+        <Card className="p-4 bg-yellow-50 border-yellow-200">
+          <p className="text-sm text-yellow-800">
+            <strong>Base URL:</strong> <code>http://localhost:5000/api</code> | <strong>Action Types:</strong> 7 (OCR, API, Data, Browser, File, Database, Email) | <strong>Platforms:</strong> 6+ supported
+          </p>
+        </Card>
       </div>
     </DashboardLayout>
   );

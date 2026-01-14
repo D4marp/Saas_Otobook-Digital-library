@@ -22,7 +22,23 @@ services:
     networks:
       - otobook-network
 
-  # Backend Server
+  # Redis for Queue Management (OCR & RPA)
+  redis:
+    image: redis:alpine
+    container_name: otobook_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - otobook-network
+
+  # Backend Server (includes OCR & RPA APIs)
   backend:
     build:
       context: .
@@ -34,13 +50,19 @@ services:
       DB_USER: otobook_user
       DB_PASSWORD: otobook_password
       DB_NAME: otobook_saas
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      OCR_PROVIDER: tesseract
+      RPA_WORKERS: 2
     ports:
       - "3001:3001"
     depends_on:
       mysql:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/api/users"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -50,6 +72,8 @@ services:
     volumes:
       - ./Backend:/app
       - /app/node_modules
+      - uploads_data:/app/uploads
+      - workflows_data:/app/workflows
     restart: unless-stopped
 
   # Frontend Server
@@ -58,6 +82,8 @@ services:
       context: .
       dockerfile: Frontend/Dockerfile
     container_name: otobook_frontend
+    environment:
+      VITE_API_BASE_URL: http://backend:3001/api
     ports:
       - "80:80"
     depends_on:
@@ -68,6 +94,12 @@ services:
 
 volumes:
   mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+  uploads_data:
+    driver: local
+  workflows_data:
     driver: local
 
 networks:

@@ -11,6 +11,8 @@ import {
   BarChart3,
   Code2,
   Bot,
+  Play,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -36,9 +38,19 @@ export const Sidebar = () => {
       href: "/documentation/ocr",
     },
     {
+      label: "OCR Playground",
+      icon: Play,
+      href: "/playground/ocr",
+    },
+    {
       label: "RPA Framework",
       icon: Bot,
       href: "/documentation/rpa",
+    },
+    {
+      label: "RPA Playground",
+      icon: Zap,
+      href: "/playground/rpa",
     },
     {
       label: "Analytics",
