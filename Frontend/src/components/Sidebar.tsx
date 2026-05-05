@@ -23,16 +23,6 @@ export const Sidebar = () => {
 
   const menuItems = [
     {
-      label: "Dashboard",
-      icon: Home,
-      href: "/dashboard",
-    },
-    {
-      label: "User Management",
-      icon: Users,
-      href: "/dashboard/users",
-    },
-    {
       label: "OCR Documentation",
       icon: Code2,
       href: "/documentation/ocr",
@@ -51,16 +41,6 @@ export const Sidebar = () => {
       label: "RPA Playground",
       icon: Zap,
       href: "/playground/rpa",
-    },
-    {
-      label: "Analytics",
-      icon: BarChart3,
-      href: "/dashboard/analytics",
-    },
-    {
-      label: "Settings",
-      icon: Settings,
-      href: "/dashboard/settings",
     },
   ];
 

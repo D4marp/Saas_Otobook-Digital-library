@@ -7,6 +7,16 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 60000, // 60s default timeout
+});
+
+// OCR-specific client with longer timeout (Tesseract can take 10-30s first time)
+const ocrClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  timeout: 120000, // 120s timeout for OCR (includes worker init time)
 });
 
 // User APIs
@@ -38,21 +48,21 @@ export const ocrAPI = {
   // Compare providers
   compareProviders: () => apiClient.get('/ocr/providers/compare'),
   
-  // Demo OCR processing (no image required)
+  // Demo OCR processing (no image required) - with long timeout for worker init
   demo: (options: { provider?: string; language?: string; outputFormat?: string }) => 
-    apiClient.post('/ocr/demo', options),
+    ocrClient.post('/ocr/demo', options),
   
-  // Process image with OCR
+  // Process image with OCR - with long timeout for Tesseract worker initialization
   processImage: (data: { imageData: string; provider?: string; language?: string; outputFormat?: string; enhanceImage?: boolean }) => 
-    apiClient.post('/ocr/process', data),
+    ocrClient.post('/ocr/process', data),
   
   // Batch process images
   batchProcess: (data: { images: string[]; provider?: string; language?: string; outputFormat?: string }) => 
-    apiClient.post('/ocr/batch', data),
+    ocrClient.post('/ocr/batch', data),
   
   // Extract structured data (tables, forms)
   extractStructuredData: (data: { imageData: string; provider?: string; dataType?: string }) => 
-    apiClient.post('/ocr/extract', data),
+    ocrClient.post('/ocr/extract', data),
   
   // Get platform-specific configuration
   getPlatformConfig: (platform: string) => apiClient.get(`/ocr/platform/${platform}`),
